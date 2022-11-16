@@ -19,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Export
-        run: emacs --batch --funcall org-latex-export-to-pdf
+        run: emacs presentation.org --batch --funcall org-latex-export-to-pdf
       - name: Commit and push PDF file
         uses: EndBug/add-and-commit@v9
         with:
