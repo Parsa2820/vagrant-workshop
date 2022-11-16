@@ -96,10 +96,11 @@
      cat Vagrantfile | egrep -v "#|^$" 
    #+end_src
 
-   #+RESULTS:
-   : Vagrant.configure("2") do |config|
-   :   config.vm.box = "ubuntu/jammy64"
-   : end
+   #+begin_src vagrantfile
+     Vagrant.configure("2") do |config|
+       config.vm.box = "ubuntu/jammy64"
+     end
+   #+end_src
    
    + The syntax of Vagrantfiles is [[https://www.ruby-lang.org][Ruby]], which is a dynamic, open source programming language
    + This allows lots of flexabilties when working with Vagrantfiles
