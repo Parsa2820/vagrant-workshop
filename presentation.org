@@ -34,59 +34,153 @@
 * Get started
 ** Initialize a project directory
 *** Create a directory
-     #+begin_src sh
-       mkdir my_first_vagrant_project
-       cd my_first_vagrant_project
-     #+end_src
+    #+begin_src sh
+      mkdir my_first_vagrant_project
+      cd my_first_vagrant_project
+    #+end_src
 *** Initialize the project
-     #+begin_src
-       vagrant init ubuntu/jammy64
-     #+end_src
+    #+begin_src
+      vagrant init ubuntu/jammy64
+    #+end_src
  
-     #+RESULTS:
-     : A `Vagrantfile` has been placed in this directory. You are now
-     : ready to `vagrant up` your first virtual environment! Please read
-     : the comments in the Vagrantfile as well as documentation on
-     : `vagrantup.com` for more information on using Vagrant.
- 
-     + This command will create a file named Vagrantfile under the working directory using ubuntu/jammy64 as the base box
-       + Boxes are the package format for Vagrant environments. There are ready to use boxes for ubuntu, centos, ...
-     + Vagrantfile describes the type of machine required for a project, and how to configure and provision these machines
-     + We explore the content of this Vagrantfile later in the presentation
+    #+RESULTS:
+    : A `Vagrantfile` has been placed in this directory. You are now
+    : ready to `vagrant up` your first virtual environment! Please read
+    : the comments in the Vagrantfile as well as documentation on
+    : `vagrantup.com` for more information on using Vagrant.
+
+    + This command will create a file named Vagrantfile under the working directory using ubuntu/jammy64 as the base box
+      + Boxes are the package format for Vagrant environments. There are ready to use boxes for ubuntu, centos, ...
+    + Vagrantfile describes the type of machine required for a project, and how to configure and provision these machines
+    + We explore the content of this Vagrantfile later in the presentation
 ** Boot the environment
 *** Bring up the previously initialized project
-     #+begin_src sh
-       vagrant up
-     #+end_src
+    #+begin_src sh
+      vagrant up
+    #+end_src
 
-     + First time you boot into a box, Vagrant will download the box from [[https://app.vagrantup.com/boxes/search][HashiCorp's Vagrant Cloud box catalog]]
-       + The ubuntu/jammy64 box is about 600 MB. So be patient :D
-     + After this command finished, you will not actually see anything, because Vagrant runs the VM without UI
-       + So only check for errors. If there was any, try rerunning the command
+    + First time you boot into a box, Vagrant will download the box from [[https://app.vagrantup.com/boxes/search][HashiCorp's Vagrant Cloud box catalog]]
+      + The ubuntu/jammy64 box is about 600 MB. So be patient :D
+    + After this command finished, you will not actually see anything, because Vagrant runs the VM without UI
+      + So only check for errors. If there was any, try rerunning the command
 *** SSH into the machine
-     #+begin_src sh
-       vagrant ssh
-     #+end_src
+    #+begin_src sh
+      vagrant ssh
+    #+end_src
 
-     + This command needs neither passowrd nor manual SSH key in order to login
-       + Vagrant maintains an internal SSH key for that automatically!
-     + Vagrant also shares project directory with the VM in /vagrant
-       + Easily copy files between host and VM!
-     + Exit the SSH session however you wish
+    + This command needs neither passowrd nor manual SSH key in order to login
+      + Vagrant maintains an internal SSH key for that automatically!
+      + Vagrant also use proper port forward for the created VM
+    + Vagrant also shares project directory with the VM in /vagrant
+      + Easily copy files between host and VM!
+    + Exit the SSH session however you wish
 *** Turn off the machine and save its state 
-     #+begin_src sh
-       vagrant halt
-     #+end_src
+    #+begin_src sh
+      vagrant halt
+    #+end_src
 
-     + This command will save state of the machine and release hardware resources 
-     + The src_sh{vagrant up} command will bring up the machine with saved state
+    + This command will save state of the machine and release hardware resources 
+    + The src_sh{vagrant up} command will bring up the machine with saved state
 *** Destroy the machine
-     #+begin_src sh
-       vagrant destroy
-     #+end_src
+    #+begin_src sh
+      vagrant destroy
+    #+end_src
 
-     + This command stops the machine and remove all the associated resources
-     + Keep in mind that Vagrantfile won't be deleted, since it contains the blueprint for the VMs
+    + This command stops the machine and remove all the associated resources
+    + Keep in mind that Vagrantfile won't be deleted, since it contains the blueprint for the VMs
 * Advanced topics
 ** Vagrantfile
-   + Lets take a look at previous section Vagrantfile
+   Lets take a look at previous section Vagrantfile
+   #+begin_src sh
+     # Print Vagrantfile without empty lines and comments
+     cat Vagrantfile | egrep -v "#|^$" 
+   #+end_src
+
+   #+RESULTS:
+   : Vagrant.configure("2") do |config|
+   :   config.vm.box = "ubuntu/jammy64"
+   : end
+   
+   + The syntax of Vagrantfiles is [[https://www.ruby-lang.org][Ruby]], which is a dynamic, open source programming language
+   + This allows lots of flexabilties when working with Vagrantfiles
+   + Structure of this simple Vagrantfile
+     + The "2" in the first line above represents the version of the configuration object that will be used for configuration
+     + After that, there is a block (the section between the do and the end) that defines configuration object
+       + This object can be very different from version to version
+       + All of the configurations should be inserted here
+     + Then there is a simple field assignment which sets the base box
+*** Tips and tricks
+**** Configure VM hardware resources
+     #+begin_src vagrantfile
+       Vagrant.configure("2") do |config|
+         config.vm.box = "ubuntu/jammy64"
+         config.vm.provider "virtualbox" do |vb|
+           vb.cpus = 2
+           vb.memory = "2048"
+         end
+       end
+     #+end_src
+     Explanation:
+     + The config.vm.provider directive is a function which is called with two parameters
+       + Name of the provider, here is "virtualbox"
+       + A block which contains configurations
+         + A simple field assignment which sets number of cpu cores
+         + Anoter simple field assignment which sets amount of memory (in MB)
+**** Define multiple VMs in a Vagrantfile
+     #+begin_src vagrantfile
+       Vagrant.configure("2") do |config|
+         config.vm.box = "ubuntu/jammy64"
+         config.vm.define "First VM" do |first_vm|
+           first_vm.vm.hostname = "firstvm"
+         end
+       end
+     #+end_src
+     Explanation:
+     + Everything is like previous example
+     + The first_vm.vm.hostname variable sets the hostname of the VM
+**** Loop over VM definitions
+     #+begin_src vagrantfile
+       Vagrant.configure("2") do |config|
+         config.vm.box = "ubuntu/jammy64"
+         (1..3).each do |i|
+           config.vm.define "node-#{i}" do |node|
+           node.vm.hostname = "machine-#{i}"
+         end
+       end
+     #+end_src
+** Provisioning
+   + Provisioners in Vagrant allow you to automatically install software, alter configurations, and more on the machine as part of the first vagrant up process
+   + This is useful since boxes typically are not built perfectly for your use case
+   + Of course, if you want to just use vagrant ssh and install the software by hand, that works
+     + But by using the provisioning systems built-in to Vagrant, it automates the process so that it is repeatable and without any human interaction
+   + There are lots of provisioners for Vagrant
+     + File provisioner
+     + Shell provisioner
+     + Ansible provisioner
+     + Chef provisioner
+     + Docker provisioner
+     + Podman provisioner
+     + Puppet provisioner
+     + Salt provisioner
+*** File provisioner
+    The Vagrant file provisioner allows you to upload a file or directory from the host machine to the guest machine
+    #+begin_src vagrantfile
+      Vagrant.configure("2") do |config|
+        config.vm.box = "ubuntu/jammy64"
+        config.vm.provision "file", source: "~/.gitconfig", destination: ".gitconfig"
+      end
+    #+end_src
+*** Shell provisiner
+    The Vagrant Shell provisioner allows you to upload and execute a script within the guest machine
+    #+begin_src vagrantfile
+      Vagrant.configure("2") do |config|
+        config.vm.box = "ubuntu/jammy64"
+        config.vm.provision "shell", inline: <<-SCRIPT
+          sudo apt update
+          sudo apt install nginx
+        SCRIPT
+      end
+    #+end_src
+* Credits
+  + [[https://developer.hashicorp.com/vagrant/docs][Vagrant official documentation]]
+  + [[https://developer.hashicorp.com/vagrant/tutorials/getting-started][Vagrant quick start tutorial]]
