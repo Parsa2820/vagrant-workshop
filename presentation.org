@@ -96,11 +96,10 @@
      cat Vagrantfile | egrep -v "#|^$" 
    #+end_src
 
-   #+begin_src vagrantfile
-     Vagrant.configure("2") do |config|
-       config.vm.box = "ubuntu/jammy64"
-     end
-   #+end_src
+   #+RESULTS:
+   : Vagrant.configure("2") do |config|
+   :   config.vm.box = "ubuntu/jammy64"
+   : end
    
    + The syntax of Vagrantfiles is [[https://www.ruby-lang.org][Ruby]], which is a dynamic, open source programming language
    + This allows lots of flexabilties when working with Vagrantfiles
@@ -145,7 +144,8 @@
          config.vm.box = "ubuntu/jammy64"
          (1..3).each do |i|
            config.vm.define "node-#{i}" do |node|
-           node.vm.hostname = "machine-#{i}"
+             node.vm.hostname = "machine-#{i}"
+           end
          end
        end
      #+end_src
@@ -168,7 +168,7 @@
     #+begin_src vagrantfile
       Vagrant.configure("2") do |config|
         config.vm.box = "ubuntu/jammy64"
-        config.vm.provision "file", source: "~/.gitconfig", destination: ".gitconfig"
+        config.vm.provision "file", source: "~/.gitconfig", destination: "~/.gitconfig"
       end
     #+end_src
 *** Shell provisiner
