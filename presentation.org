@@ -3,10 +3,10 @@
 #+email: parsa2820@gmail.com
 
 * Introduction
+  #+ATTR_ORG: :width 200
+  #+CAPTION: Vagrant logo
+  [[./assets/Vagrant.png]]
 ** What is Vagrant?
-   #+ATTR_ORG: :width 200
-   #+CAPTION: Vagrant logo
-   [[./assets/Vagrant.png]]
    + Vagrant is a tool for building and managing virtual machine environments
    + With an easy-to-use workflow and focus on automation
      + Vagrant lowers development environment setup time
