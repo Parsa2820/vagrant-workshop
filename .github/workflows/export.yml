@@ -1,0 +1,28 @@
+name: Export presentation org file to PDF
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'presentation.org'
+  workflow_dispatch:
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y emacs texlive-full
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Export
+        run: emacs presentation.org --batch --funcall org-latex-export-to-pdf
+      - name: Commit and push PDF file
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: presentation.pdf --force
+          default_author: github_actions
+          message: 'Add PDF file'
